@@ -5,63 +5,29 @@ using System.Linq;
 
 class Program
 {
+    private TaskManager taskManager = new TaskManager();
+    private string fileName = null;
+
     static void Main(string[] args)
     {
-        TaskManager taskManager = new TaskManager();
-        string fileName = string.Empty;
-
         while (true)
         {
-            Console.WriteLine("======== Project Management System ========");
-            Console.WriteLine("1. Load tasks from a file");
-            Console.WriteLine("2. Add a new task");
-            Console.WriteLine("3. Remove a task");
-            Console.WriteLine("4. Change time needed");
-            Console.WriteLine("5. Save tasks to a file");
-            Console.WriteLine("6. Find task sequence");
-            Console.WriteLine("7. Find earliest times");
-            Console.WriteLine("8. Exit");
-            Console.Write("Enter your choice: ");
-            string choice = Console.ReadLine();
-            Console.WriteLine();
-
-            switch (choice)
+            switch (MainMenu())
             {
                 case "1":
-                    Console.Write("Enter the name of the file: ");
-                    fileName = Console.ReadLine();
-                    taskManager.LoadTasks(fileName);
+                    LoadTasksMenu();
                     break;
                 case "2":
-                    Console.Write("Enter the task ID: ");
-                    string taskId = Console.ReadLine();
-                    Console.Write("Enter the time needed: ");
-                    int Duration = int.Parse(Console.ReadLine());
-                    Console.Write("Enter dependencies (comma-separated): ");
-                    List<string> dependencies = Console.ReadLine().Split(',').Select(s => s.Trim()).ToList();
-                    taskManager.AddTask(taskId, Duration, dependencies);
+                    SaveTasksMenu();
                     break;
                 case "3":
-                    Console.Write("Enter the task ID to remove: ");
-                    string taskIdToRemove = Console.ReadLine();
-                    taskManager.RemoveTask(taskIdToRemove);
+                    AddTaskMenu();
                     break;
                 case "4":
-                    Console.Write("Enter the task ID to change time needed: ");
-                    string taskIdToChange = Console.ReadLine();
-                    Console.Write("Enter the new time needed: ");
-                    int newDuration = int.Parse(Console.ReadLine());
-                    taskManager.SetDuration(taskIdToChange, newDuration);
+                    RemoveTaskMenu();
                     break;
                 case "5":
-                    if (!string.IsNullOrEmpty(fileName))
-                    {
-                        taskManager.SaveTasks(fileName);
-                    }
-                    else
-                    {
-                        Console.WriteLine("No file loaded. Please load tasks from a file first.");
-                    }
+                    ChangeDurationMenu();
                     break;
                 case "6":
                     taskManager.GetTaskSequence();
@@ -79,5 +45,54 @@ class Program
 
             Console.WriteLine();
         }
+    }
+
+    private String MainMenu() {
+        Console.WriteLine("<<<<<<<<< Project Management System >>>>>>>>>");
+        Console.WriteLine("1. Load tasks from a file");
+        Console.WriteLine("2. Save tasks to a file");
+        Console.WriteLine("3. Add a new task");
+        Console.WriteLine("4. Remove a task");
+        Console.WriteLine("5. Change Duration");
+        Console.WriteLine("6. Find task sequence");
+        Console.WriteLine("7. Find earliest times");
+        Console.WriteLine("8. Exit");
+        Console.Write("Enter your choice: ");
+        return Console.ReadLine();
+    }
+    
+    private void LoadTasksMenu() {
+        Console.Write("Enter the name of the file: ");
+        string fileName = Console.ReadLine();
+        taskManager.LoadTasks(fileName);
+    }
+
+    private void SaveTasksMenu() {
+        if (!string.IsNullOrEmpty(fileName)) taskManager.SaveTasks(fileName);
+        else Console.WriteLine("No file loaded. Please load tasks from a file first.");
+    }
+
+    private void AddTaskMenu() {
+        Console.Write("Enter the task ID: ");
+        string taskId = Console.ReadLine();
+        Console.Write("Enter the task Duration: ");
+        int Duration = int.Parse(Console.ReadLine());
+        Console.Write("Enter Dependencies: ");
+        List<string> dependencies = Console.ReadLine().Split(',').Select(s => s.Trim()).ToList();
+        taskManager.AddTask(taskId, Duration, dependencies);
+    }
+
+    private void RemoveTaskMenu() {
+        Console.Write("Enter the task ID to remove: ");
+        string taskIdToRemove = Console.ReadLine();
+        taskManager.RemoveTask(taskIdToRemove);
+    }
+
+    private void ChangeDurationMenu() {
+        Console.Write("Enter the task ID to change Duration: ");
+        string taskIdToChange = Console.ReadLine();
+        Console.Write("Enter the new Duration: ");
+        int newDuration = int.Parse(Console.ReadLine());
+        taskManager.SetDuration(taskIdToChange, newDuration);
     }
 }

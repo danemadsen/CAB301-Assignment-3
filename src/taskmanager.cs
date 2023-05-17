@@ -110,9 +110,9 @@ class TaskManager
 
             Console.WriteLine("Tasks loaded successfully!");
         }
-        catch (Exception ex)
+        catch (Exception error)
         {
-            Console.WriteLine("Error loading tasks from file: " + ex.Message);
+            Console.WriteLine("Error loading tasks from file: " + error.Message);
         }
     }
 
@@ -145,9 +145,9 @@ class TaskManager
             File.WriteAllText("Sequence.txt", sequence);
             Console.WriteLine("Task sequence saved to Sequence.txt!");
         }
-        catch (Exception ex)
+        catch (Exception error)
         {
-            Console.WriteLine("Error saving task sequence: " + ex.Message);
+            Console.WriteLine("Error saving task sequence: " + error.Message);
         }
     }
 
@@ -187,9 +187,9 @@ class TaskManager
 
             Console.WriteLine("Earliest times saved to EarliestTimes.txt!");
         }
-        catch (Exception ex)
+        catch (Exception error)
         {
-            Console.WriteLine("Error saving earliest times: " + ex.Message);
+            Console.WriteLine("Error saving earliest times: " + error.Message);
         }
     }
 
