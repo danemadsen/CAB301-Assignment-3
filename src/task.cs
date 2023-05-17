@@ -5,14 +5,14 @@ using System.Linq;
 
 class Task
 {
-    public string Id { get; }
-    public int TimeNeeded { get; set; }
+    public string Id { get; set; }
+    public int Duration { get; set; }
     public List<Task> Dependencies { get; }
 
-    public Task(string id, int timeNeeded = 0)
+    public Task(string id, int duration = 0)
     {
         Id = id;
-        TimeNeeded = timeNeeded;
+        Duration = duration;
         Dependencies = new List<Task>();
     }
 
@@ -24,8 +24,5 @@ class Task
         }
     }
 
-    public void RemoveDependency(string taskId)
-    {
-        Dependencies.RemoveAll(t => t.Id == taskId);
-    }
+    public void RemoveDependency(string taskId) => Dependencies.RemoveAll(t => t.Id == taskId);
 }

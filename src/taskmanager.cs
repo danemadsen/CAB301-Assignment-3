@@ -12,51 +12,11 @@ class TaskManager
         tasks = new Dictionary<string, Task>();
     }
 
-    public void LoadTasksFromFile(string fileName)
-    {
-        try
-        {
-            string[] lines = File.ReadAllLines(fileName);
-
-            foreach (string line in lines)
-            {
-                string[] parts = line.Split(',');
-                string taskId = parts[0].Trim();
-                int timeNeeded = int.Parse(parts[1].Trim());
-
-                if (!tasks.ContainsKey(taskId))
-                {
-                    tasks.Add(taskId, new Task(taskId, timeNeeded));
-                }
-
-                if (parts.Length > 2)
-                {
-                    for (int i = 2; i < parts.Length; i++)
-                    {
-                        string dependency = parts[i].Trim();
-                        if (!tasks.ContainsKey(dependency))
-                        {
-                            tasks.Add(dependency, new Task(dependency));
-                        }
-
-                        tasks[taskId].AddDependency(tasks[dependency]);
-                    }
-                }
-            }
-
-            Console.WriteLine("Tasks loaded successfully!");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("Error loading tasks from file: " + ex.Message);
-        }
-    }
-
-    public void AddTask(string taskId, int timeNeeded, List<string> dependencies)
+    public void AddTask(string taskId, int Duration, List<string> dependencies)
     {
         if (!tasks.ContainsKey(taskId))
         {
-            tasks.Add(taskId, new Task(taskId, timeNeeded));
+            tasks.Add(taskId, new Task(taskId, Duration));
 
             foreach (string dependency in dependencies)
             {
@@ -94,20 +54,7 @@ class TaskManager
         }
     }
 
-    public void ChangeTimeNeeded(string taskId, int timeNeeded)
-    {
-        if (tasks.ContainsKey(taskId))
-        {
-            tasks[taskId].TimeNeeded = timeNeeded;
-            Console.WriteLine("Time needed changed successfully!");
-        }
-        else
-        {
-            Console.WriteLine("Task not found!");
-        }
-    }
-
-    public void SaveTasksToFile(string fileName)
+    public void SaveTasks(string fileName)
     {
         try
         {
@@ -115,7 +62,7 @@ class TaskManager
             {
                 foreach (Task task in tasks.Values)
                 {
-                    writer.Write(task.Id + ", " + task.TimeNeeded);
+                    writer.Write(task.Id + ", " + task.Duration);
                     foreach (string dependency in task.Dependencies)
                     {
                         writer.Write(", " + dependency);
@@ -132,14 +79,64 @@ class TaskManager
         }
     }
 
-    public void FindTaskSequence()
+    public void LoadTasks(string fileName)
+    {
+        try
+        {
+            string[] lines = File.ReadAllLines(fileName);
+
+            foreach (string line in lines)
+            {
+                string[] parts = line.Split(',');
+                string taskId = parts[0].Trim();
+                int Duration = int.Parse(parts[1].Trim());
+
+                if (!tasks.ContainsKey(taskId)) tasks.Add(taskId, new Task(taskId, Duration));
+
+                if (parts.Length > 2)
+                {
+                    for (int i = 2; i < parts.Length; i++)
+                    {
+                        string dependency = parts[i].Trim();
+                        if (!tasks.ContainsKey(dependency))
+                        {
+                            tasks.Add(dependency, new Task(dependency));
+                        }
+
+                        tasks[taskId].AddDependency(tasks[dependency]);
+                    }
+                }
+            }
+
+            Console.WriteLine("Tasks loaded successfully!");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error loading tasks from file: " + ex.Message);
+        }
+    }
+
+    public void SetDuration(string taskId, int Duration)
+    {
+        if (tasks.ContainsKey(taskId))
+        {
+            tasks[taskId].Duration = Duration;
+            Console.WriteLine("Time needed changed successfully!");
+        }
+        else
+        {
+            Console.WriteLine("Task not found!");
+        }
+    }
+
+    public void GetTaskSequence()
     {
         List<Task> sortedTasks = new List<Task>();
         HashSet<Task> visited = new HashSet<Task>();
 
         foreach (Task task in tasks.Values)
         {
-            Visit(task, visited, sortedTasks);
+            VisitTask(task, visited, sortedTasks);
         }
 
         string sequence = string.Join(", ", sortedTasks.Select(t => t.Id));
@@ -154,7 +151,7 @@ class TaskManager
         }
     }
 
-    private void Visit(Task task, HashSet<Task> visited, List<Task> sortedTasks)
+    private void VisitTask(Task task, HashSet<Task> visited, List<Task> sortedTasks)
     {
         if (!visited.Contains(task))
         {
@@ -162,14 +159,14 @@ class TaskManager
 
             foreach (Task dependency in task.Dependencies)
             {
-                Visit(dependency, visited, sortedTasks);
+                VisitTask(dependency, visited, sortedTasks);
             }
 
             sortedTasks.Add(task);
         }
     }
 
-    public void FindEarliestTimes()
+    public void GetEarliestTimes()
     {
         Dictionary<Task, int> earliestTimes = new Dictionary<Task, int>();
 
@@ -210,7 +207,7 @@ class TaskManager
             maxDependencyTime = Math.Max(maxDependencyTime, dependencyTime);
         }
 
-        int earliestTime = maxDependencyTime + task.TimeNeeded;
+        int earliestTime = maxDependencyTime + task.Duration;
         earliestTimes[task] = earliestTime;
         return earliestTime;
     }

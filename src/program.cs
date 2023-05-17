@@ -30,16 +30,16 @@ class Program
                 case "1":
                     Console.Write("Enter the name of the file: ");
                     fileName = Console.ReadLine();
-                    taskManager.LoadTasksFromFile(fileName);
+                    taskManager.LoadTasks(fileName);
                     break;
                 case "2":
                     Console.Write("Enter the task ID: ");
                     string taskId = Console.ReadLine();
                     Console.Write("Enter the time needed: ");
-                    int timeNeeded = int.Parse(Console.ReadLine());
+                    int Duration = int.Parse(Console.ReadLine());
                     Console.Write("Enter dependencies (comma-separated): ");
                     List<string> dependencies = Console.ReadLine().Split(',').Select(s => s.Trim()).ToList();
-                    taskManager.AddTask(taskId, timeNeeded, dependencies);
+                    taskManager.AddTask(taskId, Duration, dependencies);
                     break;
                 case "3":
                     Console.Write("Enter the task ID to remove: ");
@@ -50,13 +50,13 @@ class Program
                     Console.Write("Enter the task ID to change time needed: ");
                     string taskIdToChange = Console.ReadLine();
                     Console.Write("Enter the new time needed: ");
-                    int newTimeNeeded = int.Parse(Console.ReadLine());
-                    taskManager.ChangeTimeNeeded(taskIdToChange, newTimeNeeded);
+                    int newDuration = int.Parse(Console.ReadLine());
+                    taskManager.SetDuration(taskIdToChange, newDuration);
                     break;
                 case "5":
                     if (!string.IsNullOrEmpty(fileName))
                     {
-                        taskManager.SaveTasksToFile(fileName);
+                        taskManager.SaveTasks(fileName);
                     }
                     else
                     {
@@ -64,10 +64,10 @@ class Program
                     }
                     break;
                 case "6":
-                    taskManager.FindTaskSequence();
+                    taskManager.GetTaskSequence();
                     break;
                 case "7":
-                    taskManager.FindEarliestTimes();
+                    taskManager.GetEarliestTimes();
                     break;
                 case "8":
                     Console.WriteLine("Exiting...");
