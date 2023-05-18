@@ -63,7 +63,7 @@ class TaskManager
                 foreach (Task task in tasks.Values)
                 {
                     writer.Write(task.Id + ", " + task.Duration);
-                    foreach (string dependency in task.Dependencies)
+                    foreach (Task dependency in task.Dependencies)
                     {
                         writer.Write(", " + dependency);
                     }
