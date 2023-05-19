@@ -64,12 +64,42 @@ class Program
     static private void LoadTasksMenu() {
         Console.Write("Enter the name of the file: ");
         string fileName = Console.ReadLine();
-        taskManager.LoadTasks(fileName);
+        
+        if (string.IsNullOrEmpty(fileName)) 
+        {
+            Console.WriteLine("Invalid file name.");
+            return;
+        }
+
+        try
+        {
+            taskManager.LoadTasks(fileName);
+        }
+        catch (Exception error)
+        {
+            Console.WriteLine("Error loading tasks from file: " + error.Message);
+        }
     }
 
     static private void SaveTasksMenu() {
-        if (!string.IsNullOrEmpty(fileName)) taskManager.SaveTasks(fileName);
-        else Console.WriteLine("No file loaded. Please load tasks from a file first.");
+        Console.Write("Enter the name of the file: ");
+        string fileName = Console.ReadLine();
+        
+        if (string.IsNullOrEmpty(fileName)) 
+        {
+            Console.WriteLine("Invalid file name.");
+            return;
+        }
+
+        try
+        {
+            taskManager.SaveTasks(fileName);
+            Console.WriteLine("Tasks saved successfully!");
+        }
+        catch (Exception error)
+        {
+            Console.WriteLine("Error saving tasks to file: " + error.Message);
+        }
     }
 
     static private void AddTaskMenu() {
