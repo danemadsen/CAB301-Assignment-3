@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-
 class Program
 {
     static private TaskManager taskManager = new TaskManager();
@@ -103,13 +98,26 @@ class Program
     }
 
     static private void AddTaskMenu() {
-        Console.Write("Enter the task ID: ");
-        string taskId = Console.ReadLine();
-        Console.Write("Enter the task Duration: ");
-        int Duration = int.Parse(Console.ReadLine());
-        Console.Write("Enter Dependencies: ");
-        List<string> dependencies = Console.ReadLine().Split(',').Select(s => s.Trim()).ToList();
-        taskManager.AddTask(taskId, Duration, dependencies);
+        try
+        {
+            Console.Write("Enter the task ID: ");
+            string taskId = Console.ReadLine();
+            
+            if (string.IsNullOrEmpty(taskId) || taskId == " ") throw new Exception("Invalid task ID.");
+            
+            Console.Write("Enter the task Duration: ");
+            int Duration = int.Parse(Console.ReadLine());
+
+            Console.Write("Enter Dependencies or leave empty to skip: ");
+            List<string> dependencies = Console.ReadLine().Split(',').Select(s => s.Trim()).ToList();
+
+            taskManager.AddTask(taskId, Duration, dependencies);
+            Console.WriteLine("Task added successfully!");
+        }
+        catch (Exception error)
+        {
+            Console.WriteLine("Error adding task: " + error.Message);
+        }
     }
 
     static private void RemoveTaskMenu() {

@@ -36,6 +36,7 @@ class TaskManager
     public void SaveTasks(string fileName)
     {
         StreamWriter writer = new StreamWriter(fileName);
+        
         foreach (Task task in tasks.Values)
         {
             writer.Write(task.Id + ", " + task.Duration);
@@ -43,9 +44,16 @@ class TaskManager
             if (task.Dependencies.Count > 0)
             {
                 writer.Write(", ");
-                writer.Write(string.Join(", ", task.Dependencies));
+                List<String> dependencyIds = new List<String>();
+
+                foreach (Task dependency in task.Dependencies)
+                {
+                    dependencyIds.Add(dependency.Id);
+                }
+
+                writer.Write(string.Join(", ", dependencyIds));
             }
-            
+
             writer.WriteLine();
         }
         
@@ -56,27 +64,14 @@ class TaskManager
         }
     }
 
-    public void AddTask(string taskId, int Duration, List<string> dependencies)
+    public void AddTask(string taskId, int Duration, List<string> dependencyIds)
     {
-        if (!tasks.ContainsKey(taskId))
+        if (tasks.ContainsKey(taskId)) throw new Exception("Task already exists!");
+        tasks.Add(taskId, new Task(taskId, Duration));
+        foreach (string Id in dependencyIds)
         {
-            tasks.Add(taskId, new Task(taskId, Duration));
-
-            foreach (string dependency in dependencies)
-            {
-                if (!tasks.ContainsKey(dependency))
-                {
-                    tasks.Add(dependency, new Task(dependency));
-                }
-
-                tasks[taskId].AddDependency(tasks[dependency]);
-            }
-
-            Console.WriteLine("Task added successfully!");
-        }
-        else
-        {
-            Console.WriteLine("Task with the same ID already exists!");
+            if (string.IsNullOrEmpty(Id) && string.IsNullOrWhiteSpace(Id)) break;
+            if (tasks.ContainsKey(Id)) tasks[taskId].AddDependency(tasks[Id]);               
         }
     }
 
