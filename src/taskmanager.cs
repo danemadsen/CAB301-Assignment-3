@@ -7,102 +7,157 @@ class TaskManager
         tasks = new Dictionary<string, Task>();
     }
 
-    public void LoadTasks(string fileName)
+    public void LoadTasks()
     {
-        string[] lines = File.ReadAllLines(fileName);
+        Console.Write("Enter the name of the file: ");
+        string fileName = Console.ReadLine();
 
-        foreach (string line in lines)
+        try
         {
-            string[] parts = line.Split(',');
-            string taskId = parts[0].Trim();
-            int Duration = int.Parse(parts[1].Trim());
-
-            if (!tasks.ContainsKey(taskId)) tasks.Add(taskId, new Task(taskId, Duration));
-            if (parts.Length > 2)
+            if (string.IsNullOrEmpty(fileName)) throw new Exception("Invalid file name.");
+            string[] lines = File.ReadAllLines(fileName);
+            foreach (string line in lines)
             {
-                for (int i = 2; i < parts.Length; i++)
+                string[] parts = line.Split(',');
+                string taskId = parts[0].Trim();
+                int Duration = int.Parse(parts[1].Trim());
+
+                if (!tasks.ContainsKey(taskId)) tasks.Add(taskId, new Task(taskId, Duration));
+                if (parts.Length > 2)
                 {
-                    string dependency = parts[i].Trim();
-                    if (!tasks.ContainsKey(dependency))
+                    for (int i = 2; i < parts.Length; i++)
                     {
-                        tasks.Add(dependency, new Task(dependency));
+                        string dependency = parts[i].Trim();
+                        if (!tasks.ContainsKey(dependency))
+                        {
+                            tasks.Add(dependency, new Task(dependency));
+                        }
+                        tasks[taskId].AddDependency(tasks[dependency]);
                     }
-                    tasks[taskId].AddDependency(tasks[dependency]);
                 }
             }
         }
+        catch (Exception error)
+        {
+            Console.WriteLine("Error loading tasks from file: " + error.Message);
+        }
     }
 
-    public void SaveTasks(string fileName)
+    public void SaveTasks()
     {
-        StreamWriter writer = new StreamWriter(fileName);
+        Console.Write("Enter the name of the file: ");
+        string fileName = Console.ReadLine();
         
-        foreach (Task task in tasks.Values)
+        if (string.IsNullOrEmpty(fileName)) 
         {
-            writer.Write(task.Id + ", " + task.Duration);
-
-            if (task.Dependencies.Count > 0)
-            {
-                writer.Write(", ");
-                List<String> dependencyIds = new List<String>();
-
-                foreach (Task dependency in task.Dependencies)
-                {
-                    dependencyIds.Add(dependency.Id);
-                }
-
-                writer.Write(string.Join(", ", dependencyIds));
-            }
-
-            writer.WriteLine();
+            Console.WriteLine("Invalid file name.");
+            return;
         }
+
+        try
+        {
+            StreamWriter writer = new StreamWriter(fileName);
         
-        if (writer != null)
-        {
-            writer.Close();
-            writer.Dispose();
-        }
-    }
-
-    public void AddTask(string taskId, int Duration, List<string> dependencyIds)
-    {
-        if (tasks.ContainsKey(taskId)) throw new Exception("Task already exists!");
-        tasks.Add(taskId, new Task(taskId, Duration));
-        foreach (string Id in dependencyIds)
-        {
-            if (string.IsNullOrEmpty(Id) && string.IsNullOrWhiteSpace(Id)) break;
-            if (tasks.ContainsKey(Id)) tasks[taskId].AddDependency(tasks[Id]);               
-        }
-    }
-
-    public void RemoveTask(string taskId)
-    {
-        if (tasks.ContainsKey(taskId))
-        {
-            tasks.Remove(taskId);
             foreach (Task task in tasks.Values)
             {
-                task.RemoveDependency(taskId);
+                writer.Write(task.Id + ", " + task.Duration);
+
+                if (task.Dependencies.Count > 0)
+                {
+                    writer.Write(", ");
+                    List<String> dependencyIds = new List<String>();
+
+                    foreach (Task dependency in task.Dependencies)
+                    {
+                        dependencyIds.Add(dependency.Id);
+                    }
+
+                    writer.Write(string.Join(", ", dependencyIds));
+                }
+
+                writer.WriteLine();
             }
 
-            Console.WriteLine("Task removed successfully!");
+            if (writer != null)
+            {
+                writer.Close();
+                writer.Dispose();
+            }
+
+            Console.WriteLine("Tasks saved successfully!");
         }
-        else
+        catch (Exception error)
         {
-            Console.WriteLine("Task not found!");
+            Console.WriteLine("Error saving tasks to file: " + error.Message);
         }
     }
 
-    public void SetDuration(string taskId, int Duration)
+    public void AddTask()
     {
-        if (tasks.ContainsKey(taskId))
+        try
         {
-            tasks[taskId].Duration = Duration;
-            Console.WriteLine("Time needed changed successfully!");
+            Console.Write("Enter the task ID: ");
+            string taskId = Console.ReadLine();
+            
+            if (string.IsNullOrEmpty(taskId) || taskId == " ") throw new Exception("Invalid task ID.");
+            
+            Console.Write("Enter the task Duration: ");
+            int Duration = int.Parse(Console.ReadLine());
+
+            Console.Write("Enter Dependencies or leave empty to skip: ");
+            List<string> dependencyIds = Console.ReadLine().Split(',').Select(s => s.Trim()).ToList();
+
+            if (tasks.ContainsKey(taskId)) throw new Exception("Task already exists!");
+            tasks.Add(taskId, new Task(taskId, Duration));
+
+            foreach (string Id in dependencyIds)
+            {
+                if (string.IsNullOrEmpty(Id) && string.IsNullOrWhiteSpace(Id)) break;
+                if (tasks.ContainsKey(Id)) tasks[taskId].AddDependency(tasks[Id]);               
+            }
+
+            Console.WriteLine("Task added successfully!");
         }
-        else
+        catch (Exception error)
         {
-            Console.WriteLine("Task not found!");
+            Console.WriteLine("Error adding task: " + error.Message);
+        }
+    }
+
+    public void RemoveTask()
+    {
+        try
+        {
+            Console.Write("Enter the task ID to remove: ");
+            string taskId = Console.ReadLine();
+            if (!tasks.ContainsKey(taskId)) throw new Exception("Task not found!");
+            tasks.Remove(taskId);
+            foreach (Task task in tasks.Values) task.RemoveDependency(taskId);
+        }
+        catch (Exception error)
+        {
+            Console.WriteLine("Error removing task: " + error.Message);
+        }
+    }
+
+    public void SetNewDuration()
+    {
+        try
+        {
+            Console.Write("Enter the task ID to change Duration: ");
+            string taskId = Console.ReadLine();
+
+            if (string.IsNullOrEmpty(taskId) || taskId == " ") throw new Exception("Invalid task ID.");
+
+            Console.Write("Enter the new Duration: ");
+            int newDuration = int.Parse(Console.ReadLine());
+
+            if (!tasks.ContainsKey(taskId)) throw new Exception("Task not found!");
+            tasks[taskId].Duration = newDuration;
+        }
+        catch (Exception error)
+        {
+            Console.WriteLine("Error setting Duration: " + error.Message);
         }
     }
 
